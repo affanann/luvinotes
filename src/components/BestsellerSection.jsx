@@ -6,11 +6,46 @@ import logo4 from "../assets/logo1.webp";
 import logo5 from "../assets/logo1.webp";
 
 const DEFAULT_ITEMS = [
-  { id: "b1", title: { id: "KOLEKSI 43+ JUTA E-BOOK BERBAGAI KATEGORI", en: "COLLECTION OF 43+ MILLION E-BOOKS ACROSS CATEGORIES" }, thumbnail: logo1 },
-  { id: "b2", title: { id: "KOLEKSI NOVEL BESTSELLER: Tere Liye, Pramoedya & Lainnya", en: "BESTSELLING NOVEL COLLECTION: Tere Liye, Pramoedya & More" }, thumbnail: logo5 },
-  { id: "b3", title: { id: "30 Buku Rahasia Membangun Kekayaan & Investasi", en: "30 Books Secret on How to Build Wealth & Investing" }, thumbnail: logo2 },
-  { id: "b4", title: { id: "30 Buku Panduan Parenting & Keluarga Bahagia", en: "30 Books for Parenting Guides & Happy Family" }, thumbnail: logo3 },
-  { id: "b5", title: { id: "30 Buku Cara Networking & Berkomunikasi", en: "30 Books on Networking & Communication" }, thumbnail: logo4 },
+  {
+    id: "b1",
+    title: {
+      id: "KOLEKSI 43+ JUTA E-BOOK BERBAGAI KATEGORI",
+      en: "COLLECTION OF 43+ MILLION E-BOOKS ACROSS CATEGORIES",
+    },
+    thumbnail: logo1,
+  },
+  {
+    id: "b2",
+    title: {
+      id: "KOLEKSI NOVEL BESTSELLER: Tere Liye, Pramoedya & Lainnya",
+      en: "BESTSELLING NOVEL COLLECTION: Tere Liye, Pramoedya & More",
+    },
+    thumbnail: logo5,
+  },
+  {
+    id: "b3",
+    title: {
+      id: "30 Buku Rahasia Membangun Kekayaan & Investasi",
+      en: "30 Books Secret on How to Build Wealth & Investing",
+    },
+    thumbnail: logo2,
+  },
+  {
+    id: "b4",
+    title: {
+      id: "30 Buku Panduan Parenting & Keluarga Bahagia",
+      en: "30 Books for Parenting Guides & Happy Family",
+    },
+    thumbnail: logo3,
+  },
+  {
+    id: "b5",
+    title: {
+      id: "30 Buku Cara Networking & Berkomunikasi",
+      en: "30 Books on Networking & Communication",
+    },
+    thumbnail: logo4,
+  },
 ];
 
 export default function BestsellerSection({ items, onAdd, lang = "id" }) {
@@ -21,22 +56,19 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
   return (
     <section className="mt-12">
       <style>{`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .no-scrollbar::-webkit-scrollbar{display:none}
+        .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+        .snap-always{scroll-snap-stop:always}
       `}</style>
 
-      <div className="mx-auto w-full max-w-[1280px] rounded-3xl bg-neutral-900 text-white ring-1 ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-4 sm:px-6 md:px-8 py-6 sm:py-8">
-        {/* JUDUL TETAP */}
+      {/* kotak hitam fixed + clip isi */}
+      <div className="mx-auto w-full max-w-[1280px] rounded-3xl bg-neutral-900 text-white ring-1 ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-hidden">
         <h2
           className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight uppercase drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]"
           style={{
             backgroundImage:
-              "linear-gradient(90deg, #ffffff, #fde68a, #ffffff, #f59e0b, #ffffff)",
+              "linear-gradient(90deg,#ffffff,#fde68a,#ffffff,#f59e0b,#ffffff)",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
@@ -47,81 +79,84 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           {TITLE}
         </h2>
 
-        {/* MOBILE/TABLET: horizontal, kartu lebih kecil dan rapi */}
+        {/* MOBILE: 1 kartu/slide, jarak lebih jauh, tetap di dalam kotak */}
         <div
           className="
-            mt-5 lg:hidden
-            -mx-4 px-4
-            flex gap-3 overflow-x-auto no-scrollbar
-            snap-x snap-mandatory scroll-pl-4
+            mt-6 lg:hidden
+            px-5                /* padding dalam kotak hitam, tanpa -mx */
+            flex overflow-x-auto no-scrollbar
+            gap-6               /* jarak antar produk lebih jauh */
+            snap-x snap-mandatory
+            scroll-pl-5 scroll-pr-5  /* agar item pertama/terakhir bisa center */
           "
           role="list"
           aria-label="Katalog bestseller"
         >
           {data.map((b) => {
-            const titleText = (b.title && (b.title[lang] || b.title.id)) || "";
+            const titleText = b.title?.[lang] || b.title?.id || "";
             return (
               <article
                 key={b.id}
                 className="
-                  snap-start
-                  rounded-2xl bg-white text-black
-                  border-2 border-transparent
-                  shadow-[0_8px_22px_rgba(0,0,0,0.06)]
-                  transition-colors
-                  hover:border-yellow-400
-                  hover:outline-[4px] hover:outline-black/80
+                  snap-center snap-always
                   flex-shrink-0
-                  w-[72%] xs:w-[66%] sm:w-[58%] md:w-[48%]
+                  w-[72%]           /* lebih kecil dari layar */
                 "
-                aria-label={titleText}
               >
-                <div className="overflow-hidden rounded-2xl">
-                  {/* gambar tetap square, tapi kompakt */}
-                  <div className="relative w-full aspect-square bg-gray-50">
-                    {b.thumbnail ? (
-                      <img
-                        src={b.thumbnail}
-                        alt={titleText}
-                        className="absolute inset-0 h-full w-full object-cover"
-                        loading="lazy"
-                        draggable="false"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 grid place-items-center">
-                        <div className="h-12 w-12 rounded-lg bg-black/10" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* body diperkecil */}
-                  <div className="px-3 pb-3 pt-2">
-                    <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold tracking-tight">
-                      {titleText}
-                    </h3>
-
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-emerald-700 text-lg font-extrabold">
-                        Rp 99.000
-                      </span>
-                      <span className="text-xs text-gray-500 line-through">
-                        Rp 599.000
-                      </span>
+                <div
+                  className="
+                    rounded-2xl bg-white text-black
+                    border-2 border-transparent
+                    shadow-[0_8px_22px_rgba(0,0,0,0.06)]
+                    hover:border-yellow-400 hover:outline-[4px] hover:outline-black/80
+                  "
+                  aria-label={titleText}
+                >
+                  <div className="overflow-hidden rounded-2xl">
+                    <div className="relative w-full aspect-square bg-gray-50">
+                      {b.thumbnail ? (
+                        <img
+                          src={b.thumbnail}
+                          alt={titleText}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          loading="lazy"
+                          draggable="false"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 grid place-items-center">
+                          <div className="h-12 w-12 rounded-lg bg-black/10" />
+                        </div>
+                      )}
                     </div>
 
-                    <button
-                      onClick={() => onAdd?.(b)}
-                      className="
-                        mt-3 w-full rounded-full
-                        bg-yellow-400 text-neutral-900
-                        px-3 py-2.5 text-sm font-bold
-                        transition-colors duration-200
-                        hover:bg-neutral-900 hover:text-white
-                        focus:outline-none focus:ring-2 focus:ring-black/20
-                      "
-                    >
-                      {BTN_LABEL}
-                    </button>
+                    <div className="px-3 pb-3 pt-2">
+                      <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold tracking-tight">
+                        {titleText}
+                      </h3>
+
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-emerald-700 text-lg font-extrabold">
+                          Rp 99.000
+                        </span>
+                        <span className="text-xs text-gray-500 line-through">
+                          Rp 599.000
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => onAdd?.(b)}
+                        className="
+                          mt-3 w-full rounded-full
+                          bg-yellow-400 text-neutral-900
+                          px-3 py-2.5 text-sm font-bold
+                          transition-colors duration-200
+                          hover:bg-neutral-900 hover:text-white
+                          focus:outline-none focus:ring-2 focus:ring-black/20
+                        "
+                      >
+                        {BTN_LABEL}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -129,10 +164,10 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           })}
         </div>
 
-        {/* DESKTOP: grid tetap 5 kolom */}
-        <div className="mt-6 hidden lg:grid grid-cols-5 gap-6">
+        {/* DESKTOP: tetap grid */}
+        <div className="mt-8 hidden lg:grid grid-cols-5 gap-6">
           {data.map((b) => {
-            const titleText = (b.title && (b.title[lang] || b.title.id)) || "";
+            const titleText = b.title?.[lang] || b.title?.id || "";
             return (
               <article
                 key={b.id}
