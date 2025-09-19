@@ -4,8 +4,8 @@ import banner1 from "/src/assets/banner1.webp";
 import banner2 from "/src/assets/banner2.webp";
 import banner3 from "/src/assets/banner3.webp";
 
-const W = 1208; // lebar kanvas fix
-const H = 302;  // tinggi kanvas fix
+const W = 1208; // fixed design width
+const H = 302;  // fixed design height
 
 const slides = [
   { id: 1, image: banner1 },
@@ -25,7 +25,6 @@ export default function BannerSlider({ interval = 4000 }) {
   const isResettingRef = useRef(false);
   const isTransitioningRef = useRef(false);
 
-  // scale agar 1208x302 muat di HP, desktop tetap 1:1
   const [scale, setScale] = useState(1);
   useEffect(() => {
     const el = shellRef.current;
@@ -38,9 +37,7 @@ export default function BannerSlider({ interval = 4000 }) {
     return () => ro.disconnect();
   }, []);
 
-  useEffect(() => {
-    idxRef.current = idx;
-  }, [idx]);
+  useEffect(() => { idxRef.current = idx; }, [idx]);
 
   const extendedSlides = useMemo(
     () => [slides[total - 1], ...slides, slides[0]],
@@ -54,27 +51,20 @@ export default function BannerSlider({ interval = 4000 }) {
   const startAuto = useCallback(() => {
     stopAuto();
     timerRef.current = setTimeout(function tick() {
-      if (!isResettingRef.current && !isTransitioningRef.current) {
-        setIdx((i) => i + 1);
-      } else {
-        startAuto();
-      }
+      if (!isResettingRef.current && !isTransitioningRef.current) setIdx(i => i + 1);
+      else startAuto();
     }, interval);
   }, [interval, stopAuto]);
 
-  useEffect(() => {
-    startAuto();
-    return stopAuto;
-  }, [startAuto, stopAuto]);
+  useEffect(() => { startAuto(); return stopAuto; }, [startAuto, stopAuto]);
 
   const handlePrev = useCallback(() => {
     if (isTransitioningRef.current || isResettingRef.current) return;
-    setIdx((i) => i - 1);
+    setIdx(i => i - 1);
   }, []);
-
   const handleNext = useCallback(() => {
     if (isTransitioningRef.current || isResettingRef.current) return;
-    setIdx((i) => i + 1);
+    setIdx(i => i + 1);
   }, []);
 
   useEffect(() => {
@@ -87,10 +77,7 @@ export default function BannerSlider({ interval = 4000 }) {
     const track = trackRef.current;
     if (!track) return;
 
-    const onStart = () => {
-      isTransitioningRef.current = true;
-    };
-
+    const onStart = () => { isTransitioningRef.current = true; };
     const onEnd = () => {
       const i = idxRef.current;
       if (i === total + 1 || i === 0) {
@@ -118,7 +105,7 @@ export default function BannerSlider({ interval = 4000 }) {
     };
   }, [total, startAuto]);
 
-  // swipe untuk mobile
+  // touch swipe
   const startXRef = useRef(0);
   const dxRef = useRef(0);
   const draggingRef = useRef(false);
@@ -131,44 +118,47 @@ export default function BannerSlider({ interval = 4000 }) {
     dxRef.current = 0;
     trackRef.current.style.transition = "none";
   };
-
   const onTouchMove = (e) => {
     if (!draggingRef.current || !trackRef.current) return;
     const dx = e.touches[0].clientX - startXRef.current;
     dxRef.current = dx;
-    const dxPct = (dx / (W * scale)) * 100; // skala sesuai tampilan
+    const dxPct = (dx / (W * scale)) * 100;
     trackRef.current.style.transform =
       `translate3d(calc(-${idxRef.current * 100}% + ${dxPct}%),0,0)`;
     if (Math.abs(dx) > 6) e.preventDefault();
   };
-
   const onTouchEnd = () => {
     if (!trackRef.current) return;
     const threshold = Math.max(40 * scale, W * scale * 0.08);
     trackRef.current.style.transition = "transform 450ms cubic-bezier(0.22,0.61,0.36,1)";
-    if (dxRef.current > threshold) setIdx((i) => i - 1);
-    else if (dxRef.current < -threshold) setIdx((i) => i + 1);
+    if (dxRef.current > threshold) setIdx(i => i - 1);
+    else if (dxRef.current < -threshold) setIdx(i => i + 1);
     else trackRef.current.style.transform = `translate3d(-${idxRef.current * 100}%,0,0)`;
     draggingRef.current = false;
     dxRef.current = 0;
     startAuto();
   };
 
+  const scaledH = Math.round(H * scale);
+
   return (
     <div className="mx-2 sm:mx-3 lg:mx-6">
-      {/* shell responsif: tinggi mengikuti scale */}
+      {/* shell: lebar responsif, tinggi mengikuti scale */}
       <div
         ref={shellRef}
-        className="mx-auto w-full max-w-[1208px]"
-        style={{ height: H * scale }}
+        className="mx-auto w-full max-w-[1208px] relative"
+        style={{ height: scaledH }}
       >
-        {/* kanvas 1208x302 yang di-scale di mobile */}
+        {/* canvas: tetap 1208x302, di-scale dan DI-TENGAHKAN */}
         <div
           className="relative overflow-hidden rounded-[28px] ring-1 ring-black/5 shadow-sm select-none group"
           style={{
             width: W,
             height: H,
-            transform: `scale(${scale})`,
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            transform: `translateX(-50%) scale(${scale})`,
             transformOrigin: "top center",
           }}
           onMouseEnter={stopAuto}
@@ -201,40 +191,25 @@ export default function BannerSlider({ interval = 4000 }) {
             ))}
           </div>
 
-          {/* PANAH: hanya desktop */}
+          {/* panah: desktop saja */}
           <button
             onClick={handlePrev}
             aria-label="Sebelumnya"
-            className="
-              hidden sm:grid
-              absolute top-1/2 -translate-y-1/2 left-12 sm:left-16 group-hover:left-3 sm:group-hover:left-4
-              transition-all duration-300 ease-out
-              opacity-0 group-hover:opacity-100
-              z-10 place-items-center
-              w-11 h-11 sm:w-12 sm:h-12 rounded-full
-              bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5
-              hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10
-            "
+            className="hidden sm:grid absolute top-1/2 -translate-y-1/2 left-12 sm:left-16 group-hover:left-3 sm:group-hover:left-4
+                       transition-all duration-300 ease-out opacity-0 group-hover:opacity-100 z-10 place-items-center
+                       w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5"
           >
             <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none"
               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-
           <button
             onClick={handleNext}
             aria-label="Berikutnya"
-            className="
-              hidden sm:grid
-              absolute top-1/2 -translate-y-1/2 right-12 sm:right-16 group-hover:right-3 sm:group-hover:right-4
-              transition-all duration-300 ease-out
-              opacity-0 group-hover:opacity-100
-              z-10 place-items-center
-              w-11 h-11 sm:w-12 sm:h-12 rounded-full
-              bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5
-              hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10
-            "
+            className="hidden sm:grid absolute top-1/2 -translate-y-1/2 right-12 sm:right-16 group-hover:right-3 sm:group-hover:right-4
+                       transition-all duration-300 ease-out opacity-0 group-hover:opacity-100 z-10 place-items-center
+                       w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5"
           >
             <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none"
               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -242,7 +217,7 @@ export default function BannerSlider({ interval = 4000 }) {
             </svg>
           </button>
 
-          {/* DOTS: hanya desktop, gaya lama */}
+          {/* dots: desktop saja */}
           <div className="hidden sm:flex absolute bottom-4 left-1/2 -translate-x-1/2 gap-2">
             {slides.map((_, i) => (
               <button
