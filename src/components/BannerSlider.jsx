@@ -15,15 +15,19 @@ export default function BannerSlider({ interval = 4000 }) {
   const [current, setCurrent] = useState(1);
   const total = slides.length;
 
+  const containerRef = useRef(null);
   const trackRef = useRef(null);
   const timerRef = useRef(null);
   const isResettingRef = useRef(false);
   const idxRef = useRef(idx);
   const isTransitioningRef = useRef(false);
 
-  useEffect(() => {
-    idxRef.current = idx;
-  }, [idx]);
+  // swipe
+  const startXRef = useRef(0);
+  const dxRef = useRef(0);
+  const draggingRef = useRef(false);
+
+  useEffect(() => { idxRef.current = idx; }, [idx]);
 
   const extendedSlides = useMemo(
     () => [slides[total - 1], ...slides, slides[0]],
@@ -37,27 +41,24 @@ export default function BannerSlider({ interval = 4000 }) {
   const startAuto = useCallback(() => {
     stopAuto();
     timerRef.current = setTimeout(function tick() {
-      if (!isResettingRef.current && !isTransitioningRef.current) {
-        setIdx((i) => i + 1);
+      if (!isResettingRef.current && !isTransitioningRef.current && !draggingRef.current) {
+        setIdx(i => i + 1);
       } else {
         startAuto();
       }
     }, interval);
   }, [interval, stopAuto]);
 
-  useEffect(() => {
-    startAuto();
-    return stopAuto;
-  }, [startAuto, stopAuto]);
+  useEffect(() => { startAuto(); return stopAuto; }, [startAuto, stopAuto]);
 
   const handlePrev = useCallback(() => {
     if (isTransitioningRef.current || isResettingRef.current) return;
-    setIdx((i) => i - 1);
+    setIdx(i => i - 1);
   }, []);
 
   const handleNext = useCallback(() => {
     if (isTransitioningRef.current || isResettingRef.current) return;
-    setIdx((i) => i + 1);
+    setIdx(i => i + 1);
   }, []);
 
   useEffect(() => {
@@ -70,9 +71,7 @@ export default function BannerSlider({ interval = 4000 }) {
     const track = trackRef.current;
     if (!track) return;
 
-    const onStart = () => {
-      isTransitioningRef.current = true;
-    };
+    const onStart = () => { isTransitioningRef.current = true; };
 
     const onEnd = () => {
       const currentIdx = idxRef.current;
@@ -80,7 +79,7 @@ export default function BannerSlider({ interval = 4000 }) {
         isResettingRef.current = true;
         track.style.transition = "none";
         const target = currentIdx === 0 ? total : 1;
-        track.style.transform = `translateX(-${target * 100}%)`;
+        track.style.transform = `translate3d(-${target * 100}%,0,0)`;
         void track.offsetWidth;
         track.style.transition = "transform 500ms ease-in-out";
         setIdx(target);
@@ -101,89 +100,120 @@ export default function BannerSlider({ interval = 4000 }) {
     };
   }, [total, startAuto]);
 
+  // touch
+  const onTouchStart = (e) => {
+    if (!trackRef.current) return;
+    draggingRef.current = true;
+    stopAuto();
+    startXRef.current = e.touches[0].clientX;
+    dxRef.current = 0;
+    trackRef.current.style.transition = "none";
+  };
+
+  const onTouchMove = (e) => {
+    if (!trackRef.current || !containerRef.current || !draggingRef.current) return;
+    const dx = e.touches[0].clientX - startXRef.current;
+    dxRef.current = dx;
+    const w = containerRef.current.clientWidth;
+    const dxPct = (dx / w) * 100;
+    trackRef.current.style.transform =
+      `translate3d(calc(-${idxRef.current * 100}% + ${dxPct}%),0,0)`;
+    if (Math.abs(dx) > 6) e.preventDefault();
+  };
+
+  const onTouchEnd = () => {
+    if (!trackRef.current || !containerRef.current) return;
+    const w = containerRef.current.clientWidth;
+    const threshold = Math.max(40, w * 0.08);
+    trackRef.current.style.transition = "transform 500ms ease-in-out";
+    if (dxRef.current > threshold) setIdx(i => i - 1);
+    else if (dxRef.current < -threshold) setIdx(i => i + 1);
+    else trackRef.current.style.transform = `translate3d(-${idxRef.current * 100}%,0,0)`;
+    draggingRef.current = false;
+    dxRef.current = 0;
+    startAuto();
+  };
+
   return (
     <>
-      {/* banner */}
-      <div
-        className="group mt-4 relative overflow-hidden rounded-2xl mx-auto w-full max-w-[1280px]"
-        style={{ height: 320 }}
-        onMouseEnter={stopAuto}
-        onMouseLeave={startAuto}
-      >
-        {/* banner: track */}
+      {/* margin luar agar tepi lebih rapat, desktop tidak diubah */}
+      <div className="mx-2 sm:mx-3 lg:mx-6">
         <div
-          ref={trackRef}
-          className="flex h-full transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${idx * 100}%)` }}
+          ref={containerRef}
+          className="
+            group relative overflow-hidden
+            mx-auto w-full max-w-[1208px]
+            rounded-[28px] ring-1 ring-black/5 shadow-sm
+            aspect-[4/1] md:aspect-auto md:h-[302px]
+          "
+          onMouseEnter={stopAuto}
+          onMouseLeave={startAuto}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          {extendedSlides.map((s, i) => (
-            <div key={`${s.id}-${i}`} className="h-full flex-shrink-0 basis-full min-w-full">
-              <img
-                src={s.image}
-                alt={`Slide ${s.id}`}
-                className="w-full h-full object-contain select-none"
-                draggable={false}
+          {/* track */}
+          <div
+            ref={trackRef}
+            className="flex h-full transition-transform duration-500 ease-in-out"
+            style={{ transform: `translate3d(-${idx * 100}%,0,0)` }}
+          >
+            {extendedSlides.map((s, i) => (
+              <div
+                key={`${s.id}-${i}`}
+                className="h-full flex-none basis-full min-w-full overflow-hidden rounded-inherit"
+              >
+                <img
+                  src={s.image}
+                  alt={`Slide ${s.id}`}
+                  className="block w-full h-full object-cover object-center select-none"
+                  draggable={false}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* tombol: tersembunyi di mobile */}
+          <button
+            onClick={handlePrev}
+            aria-label="Sebelumnya"
+            className="hidden sm:grid absolute top-1/2 -translate-y-1/2 left-4 group-hover:left-2
+                       transition-all duration-300 opacity-0 group-hover:opacity-100 z-10 place-items-center
+                       w-10 h-10 rounded-full bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5"
+          >
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+
+          <button
+            onClick={handleNext}
+            aria-label="Berikutnya"
+            className="hidden sm:grid absolute top-1/2 -translate-y-1/2 right-4 group-hover:right-2
+                       transition-all duration-300 opacity-0 group-hover:opacity-100 z-10 place-items-center
+                       w-10 h-10 rounded-full bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5"
+          >
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+
+          {/* dots */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  if (isTransitioningRef.current || isResettingRef.current) return;
+                  setIdx(i + 1);
+                }}
+                className={`rounded-full transition-opacity ${current === i + 1 ? "opacity-100" : "opacity-60"} h-2.5 w-2.5 bg-white`}
+                aria-label={`Slide ${i + 1}`}
               />
-            </div>
-          ))}
-        </div>
-
-        {/* tombol navigasi */}
-        {/* kiri */}
-        <button
-          onClick={handlePrev}
-          aria-label="Sebelumnya"
-          className="
-            absolute top-1/2 -translate-y-1/2
-            left-12 sm:left-16 group-hover:left-3 sm:group-hover:left-4
-            transition-all duration-300 ease-out
-            opacity-0 group-hover:opacity-100
-            z-10 grid place-items-center
-            w-11 h-11 sm:w-12 sm:h-12 rounded-full
-            bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5
-            hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10
-          "
-        >
-          <svg viewBox="0 0 24 24" className="w-6 h-6 text-white-500" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-
-        {/* kanan */}
-        <button
-          onClick={handleNext}
-          aria-label="Berikutnya"
-          className="
-            absolute top-1/2 -translate-y-1/2
-            right-12 sm:right-16 group-hover:right-3 sm:group-hover:right-4
-            transition-all duration-300 ease-out
-            opacity-0 group-hover:opacity-100
-            z-10 grid place-items-center
-            w-11 h-11 sm:w-12 sm:h-12 rounded-full
-            bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5
-            hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10
-          "
-        >
-          <svg viewBox="0 0 24 24" className="w-6 h-6 text-white-500" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </button>
-
-        {/* dots */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                if (isTransitioningRef.current || isResettingRef.current) return;
-                setIdx(i + 1);
-              }}
-              className={`h-2 w-2 rounded-full ${current === i + 1 ? "bg-white" : "bg-white/50"}`}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </>
