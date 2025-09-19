@@ -19,7 +19,6 @@ export default function BundleSection({ lang = "id", onAdd }) {
     ? { title: "BUNDLES & CATALOG", digital: "Digital download", add: "Add to cart", by: "By" }
     : { title: "BUNDLE & KATALOG", digital: "Unduhan digital", add: "Tambah ke keranjang", by: "Oleh" };
 
-  // section
   return (
     <section className="mt-12">
       <div className="mx-auto w-full max-w-[1280px]">
@@ -28,17 +27,23 @@ export default function BundleSection({ lang = "id", onAdd }) {
         </h2>
       </div>
 
-      {/* grid */}
-      <div className="mx-auto mt-6 w-full max-w-[1280px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {ITEMS.map(p => {
+      {/* Mobile: 2 kolom kompak. Desktop: tetap 4 kolom. */}
+      <div className="mx-auto mt-6 w-full max-w-[1280px] grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {ITEMS.map((p) => {
           const title = p.title?.[lang] ?? p.title?.id ?? "";
           return (
             <article
               key={p.id}
-              className="h-full rounded-3xl bg-white border border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)] transition flex flex-col"
+              className="
+                h-full rounded-2xl sm:rounded-3xl bg-white border border-black/10
+                shadow-[0_8px_22px_rgba(0,0,0,0.06)]
+                hover:-translate-y-[2px] hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]
+                transition
+                flex flex-col
+              "
             >
               {/* image */}
-              <div className="relative w-full aspect-square bg-gray-50 overflow-hidden rounded-t-3xl">
+              <div className="relative w-full aspect-square bg-gray-50 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
                 <img
                   src={p.thumb}
                   alt={title}
@@ -49,37 +54,38 @@ export default function BundleSection({ lang = "id", onAdd }) {
               </div>
 
               {/* content */}
-              <div className="flex-1 px-4 pb-4 pt-3 flex flex-col">
-                <p className="text-xs text-emerald-700 font-semibold tracking-wide">{T.digital}</p>
+              <div className="flex-1 px-3 sm:px-4 pb-3 sm:pb-4 pt-2 sm:pt-3 flex flex-col">
+                <p className="text-[11px] sm:text-xs text-emerald-700 font-semibold tracking-wide">{T.digital}</p>
 
-                <h3 className="mt-1 text-base sm:text-lg font-semibold tracking-tight line-clamp-2 min-h-[3.2rem]">
+                <h3 className="mt-1 text-sm sm:text-base font-semibold tracking-tight line-clamp-2 min-h-[2.4rem] sm:min-h-[3.2rem]">
                   {title}
                 </h3>
 
-                <p className="mt-1 text-sm text-gray-500 min-h-[1.25rem]">
+                <p className="mt-1 text-[11px] sm:text-sm text-gray-500 min-h-[1rem] sm:min-h-[1.25rem]">
                   {T.by} {p.seller}
                 </p>
 
                 <div className="mt-auto" />
 
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-emerald-700 text-xl font-extrabold">{money(p.price)}</span>
-                  {p.strike ? <span className="text-sm text-gray-500 line-through">{money(p.strike)}</span> : null}
+                <div className="mt-2 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
+                  <span className="text-emerald-700 text-base sm:text-xl font-extrabold">{money(p.price)}</span>
+                  {p.strike ? (
+                    <span className="text-xs sm:text-sm text-gray-500 line-through">{money(p.strike)}</span>
+                  ) : null}
                 </div>
 
-                {/* tombol */}
                 <button
                   onClick={() => onAdd?.(p)}
                   className="
-                    mt-4 w-full h-12 rounded-full
+                    mt-3 sm:mt-4 w-full h-10 sm:h-12 rounded-full
                     bg-white text-gray-900 border border-gray-300
                     hover:bg-gray-100 active:bg-gray-200
-                    inline-flex items-center justify-center gap-3
-                    font-semibold transition-colors
+                    inline-flex items-center justify-center gap-2.5 sm:gap-3
+                    text-sm sm:text-base font-semibold transition-colors
                   "
                 >
-                  <span className="inline-grid place-items-center h-7 w-7 rounded-full border border-gray-300">
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <span className="inline-grid place-items-center h-6 w-6 sm:h-7 sm:w-7 rounded-full border border-gray-300">
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M12 5v14M5 12h14" />
                     </svg>
                   </span>
