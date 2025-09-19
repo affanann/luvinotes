@@ -53,18 +53,19 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
   const TITLE = "BESTSELLER!!";
   const BTN_LABEL = lang === "en" ? "Buy Now" : "Beli Sekarang";
 
-  // section
   return (
     <section className="mt-12">
       <style>{`
         @keyframes gradientShift {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        /* sembunyikan scrollbar untuk horizontal list */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* banner judul */}
       <div className="mx-auto w-full max-w-[1280px] rounded-3xl bg-neutral-900 text-white ring-1 ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-4 sm:px-6 md:px-8 py-6 sm:py-8">
         <h2
           className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight uppercase drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]"
@@ -81,27 +82,37 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           {TITLE}
         </h2>
 
-        {/* grid */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        {/* ====== MOBILE/TABLET: horizontal scroll ====== */}
+        <div
+          className="
+            mt-6 lg:hidden
+            -mx-4 px-4
+            flex gap-4 overflow-x-auto no-scrollbar
+            snap-x snap-mandatory
+            scroll-pl-4
+          "
+          role="list"
+          aria-label="Katalog bestseller"
+        >
           {data.map((b) => {
             const titleText = (b.title && (b.title[lang] || b.title.id)) || "";
             return (
-              // kartu
               <article
                 key={b.id}
                 className="
+                  snap-start
                   rounded-3xl bg-white text-black
                   border-4 border-transparent
                   shadow-[0_10px_30px_rgba(0,0,0,0.06)]
                   transition-colors
                   hover:border-yellow-400
                   hover:outline-[6px] hover:outline-black
+                  flex-shrink-0
+                  w-[80%] sm:w-[60%] md:w-[45%]
                 "
                 aria-label={titleText}
               >
-                {/* wrapper */}
                 <div className="overflow-hidden rounded-[1.25rem]">
-                  {/* gambar */}
                   <div className="relative w-full aspect-square bg-gray-50">
                     {b.thumbnail ? (
                       <img
@@ -118,7 +129,6 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
                     )}
                   </div>
 
-                  {/* body */}
                   <div className="px-4 pb-4 pt-3">
                     <h3 className="line-clamp-3 min-h-[3.5rem] text-base sm:text-lg font-bold tracking-tight">
                       {titleText}
@@ -133,7 +143,74 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
                       </span>
                     </div>
 
-                    {/* tombol */}
+                    <button
+                      onClick={() => onAdd?.(b)}
+                      className="
+                        mt-4 w-full rounded-full
+                        bg-yellow-400 text-neutral-900
+                        px-4 py-3 font-bold
+                        transition-colors duration-200
+                        hover:bg-neutral-900 hover:text-white
+                        focus:outline-none focus:ring-2 focus:ring-black/20
+                      "
+                    >
+                      {BTN_LABEL}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* ====== DESKTOP: grid 5 kolom ====== */}
+        <div className="mt-6 hidden lg:grid grid-cols-5 gap-6">
+          {data.map((b) => {
+            const titleText = (b.title && (b.title[lang] || b.title.id)) || "";
+            return (
+              <article
+                key={b.id}
+                className="
+                  rounded-3xl bg-white text-black
+                  border-4 border-transparent
+                  shadow-[0_10px_30px_rgba(0,0,0,0.06)]
+                  transition-colors
+                  hover:border-yellow-400
+                  hover:outline-[6px] hover:outline-black
+                "
+                aria-label={titleText}
+              >
+                <div className="overflow-hidden rounded-[1.25rem]">
+                  <div className="relative w-full aspect-square bg-gray-50">
+                    {b.thumbnail ? (
+                      <img
+                        src={b.thumbnail}
+                        alt={titleText}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        loading="lazy"
+                        draggable="false"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 grid place-items-center">
+                        <div className="h-16 w-16 rounded-xl bg-black/10" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="px-4 pb-4 pt-3">
+                    <h3 className="line-clamp-3 min-h-[3.5rem] text-base sm:text-lg font-bold tracking-tight">
+                      {titleText}
+                    </h3>
+
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-emerald-700 text-xl font-extrabold">
+                        Rp 99.000
+                      </span>
+                      <span className="text-sm text-gray-500 line-through">
+                        Rp 599.000
+                      </span>
+                    </div>
+
                     <button
                       onClick={() => onAdd?.(b)}
                       className="
