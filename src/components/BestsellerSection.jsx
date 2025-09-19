@@ -6,46 +6,11 @@ import logo4 from "../assets/logo1.webp";
 import logo5 from "../assets/logo1.webp";
 
 const DEFAULT_ITEMS = [
-  {
-    id: "b1",
-    title: {
-      id: "KOLEKSI 43+ JUTA E-BOOK BERBAGAI KATEGORI",
-      en: "COLLECTION OF 43+ MILLION E-BOOKS ACROSS CATEGORIES",
-    },
-    thumbnail: logo1,
-  },
-  {
-    id: "b2",
-    title: {
-      id: "KOLEKSI NOVEL BESTSELLER: Tere Liye, Pramoedya & Lainnya",
-      en: "BESTSELLING NOVEL COLLECTION: Tere Liye, Pramoedya & More",
-    },
-    thumbnail: logo5,
-  },
-  {
-    id: "b3",
-    title: {
-      id: "30 Buku Rahasia Membangun Kekayaan & Investasi",
-      en: "30 Books Secret on How to Build Wealth & Investing",
-    },
-    thumbnail: logo2,
-  },
-  {
-    id: "b4",
-    title: {
-      id: "30 Buku Panduan Parenting & Keluarga Bahagia",
-      en: "30 Books for Parenting Guides & Happy Family",
-    },
-    thumbnail: logo3,
-  },
-  {
-    id: "b5",
-    title: {
-      id: "30 Buku Cara Networking & Berkomunikasi",
-      en: "30 Books on Networking & Communication",
-    },
-    thumbnail: logo4,
-  },
+  { id: "b1", title: { id: "KOLEKSI 43+ JUTA E-BOOK BERBAGAI KATEGORI", en: "COLLECTION OF 43+ MILLION E-BOOKS ACROSS CATEGORIES" }, thumbnail: logo1 },
+  { id: "b2", title: { id: "KOLEKSI NOVEL BESTSELLER: Tere Liye, Pramoedya & Lainnya", en: "BESTSELLING NOVEL COLLECTION: Tere Liye, Pramoedya & More" }, thumbnail: logo5 },
+  { id: "b3", title: { id: "30 Buku Rahasia Membangun Kekayaan & Investasi", en: "30 Books Secret on How to Build Wealth & Investing" }, thumbnail: logo2 },
+  { id: "b4", title: { id: "30 Buku Panduan Parenting & Keluarga Bahagia", en: "30 Books for Parenting Guides & Happy Family" }, thumbnail: logo3 },
+  { id: "b5", title: { id: "30 Buku Cara Networking & Berkomunikasi", en: "30 Books on Networking & Communication" }, thumbnail: logo4 },
 ];
 
 export default function BestsellerSection({ items, onAdd, lang = "id" }) {
@@ -61,12 +26,12 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        /* sembunyikan scrollbar untuk horizontal list */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       <div className="mx-auto w-full max-w-[1280px] rounded-3xl bg-neutral-900 text-white ring-1 ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-4 sm:px-6 md:px-8 py-6 sm:py-8">
+        {/* JUDUL TETAP */}
         <h2
           className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight uppercase drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]"
           style={{
@@ -82,14 +47,13 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           {TITLE}
         </h2>
 
-        {/* ====== MOBILE/TABLET: horizontal scroll ====== */}
+        {/* MOBILE/TABLET: horizontal, kartu lebih kecil dan rapi */}
         <div
           className="
-            mt-6 lg:hidden
+            mt-5 lg:hidden
             -mx-4 px-4
-            flex gap-4 overflow-x-auto no-scrollbar
-            snap-x snap-mandatory
-            scroll-pl-4
+            flex gap-3 overflow-x-auto no-scrollbar
+            snap-x snap-mandatory scroll-pl-4
           "
           role="list"
           aria-label="Katalog bestseller"
@@ -101,18 +65,19 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
                 key={b.id}
                 className="
                   snap-start
-                  rounded-3xl bg-white text-black
-                  border-4 border-transparent
-                  shadow-[0_10px_30px_rgba(0,0,0,0.06)]
+                  rounded-2xl bg-white text-black
+                  border-2 border-transparent
+                  shadow-[0_8px_22px_rgba(0,0,0,0.06)]
                   transition-colors
                   hover:border-yellow-400
-                  hover:outline-[6px] hover:outline-black
+                  hover:outline-[4px] hover:outline-black/80
                   flex-shrink-0
-                  w-[80%] sm:w-[60%] md:w-[45%]
+                  w-[72%] xs:w-[66%] sm:w-[58%] md:w-[48%]
                 "
                 aria-label={titleText}
               >
-                <div className="overflow-hidden rounded-[1.25rem]">
+                <div className="overflow-hidden rounded-2xl">
+                  {/* gambar tetap square, tapi kompakt */}
                   <div className="relative w-full aspect-square bg-gray-50">
                     {b.thumbnail ? (
                       <img
@@ -124,21 +89,22 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
                       />
                     ) : (
                       <div className="absolute inset-0 grid place-items-center">
-                        <div className="h-16 w-16 rounded-xl bg-black/10" />
+                        <div className="h-12 w-12 rounded-lg bg-black/10" />
                       </div>
                     )}
                   </div>
 
-                  <div className="px-4 pb-4 pt-3">
-                    <h3 className="line-clamp-3 min-h-[3.5rem] text-base sm:text-lg font-bold tracking-tight">
+                  {/* body diperkecil */}
+                  <div className="px-3 pb-3 pt-2">
+                    <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold tracking-tight">
                       {titleText}
                     </h3>
 
-                    <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-emerald-700 text-xl font-extrabold">
+                    <div className="mt-2 flex items-baseline gap-2">
+                      <span className="text-emerald-700 text-lg font-extrabold">
                         Rp 99.000
                       </span>
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-xs text-gray-500 line-through">
                         Rp 599.000
                       </span>
                     </div>
@@ -146,9 +112,9 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
                     <button
                       onClick={() => onAdd?.(b)}
                       className="
-                        mt-4 w-full rounded-full
+                        mt-3 w-full rounded-full
                         bg-yellow-400 text-neutral-900
-                        px-4 py-3 font-bold
+                        px-3 py-2.5 text-sm font-bold
                         transition-colors duration-200
                         hover:bg-neutral-900 hover:text-white
                         focus:outline-none focus:ring-2 focus:ring-black/20
@@ -163,7 +129,7 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           })}
         </div>
 
-        {/* ====== DESKTOP: grid 5 kolom ====== */}
+        {/* DESKTOP: grid tetap 5 kolom */}
         <div className="mt-6 hidden lg:grid grid-cols-5 gap-6">
           {data.map((b) => {
             const titleText = (b.title && (b.title[lang] || b.title.id)) || "";

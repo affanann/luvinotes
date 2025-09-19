@@ -4,6 +4,10 @@
 
 
 html { scroll-behavior: smooth; }
+html, body {
+  overflow-x: hidden;
+}
+
 
 :root {
 --brand: 34 197 94;
