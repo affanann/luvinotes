@@ -1,13 +1,44 @@
 // src/components/Navbar.jsx
+import { useEffect, useRef } from "react";
 import SearchExperience from "./SearchExperience";
 import LanguageCircle from "./LanguageCircle";
 import logoWordmark from "../assets/luvinotes.png";
 
 export default function Navbar({ lang, setLang, onMenu }) {
+  const headerRef = useRef(null);
+  const spacerRef = useRef(null);
+
+  useEffect(() => {
+    if (!headerRef.current || !spacerRef.current) return;
+
+    const apply = () => {
+      const h = headerRef.current.offsetHeight || 0;
+      spacerRef.current.style.height = `${h}px`;
+    };
+
+    apply();
+    const id = requestAnimationFrame(apply);
+
+    const ro = new ResizeObserver(apply);
+    ro.observe(headerRef.current);
+
+    const onResize = () => apply();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(id);
+      ro.disconnect();
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
   return (
     <>
       {/* navbar */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-xl">
+      <header
+        ref={headerRef}
+        className="fixed inset-x-0 top-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-xl"
+      >
         <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
           {/* mobile */}
           <div className="sm:hidden">
@@ -72,8 +103,8 @@ export default function Navbar({ lang, setLang, onMenu }) {
         </div>
       </header>
 
-      {/* spacer (tinggi navbar) */}
-      <div className="h-16 sm:h-20" />
+      {/* spacer */}
+      <div ref={spacerRef} aria-hidden="true" />
     </>
   );
 }

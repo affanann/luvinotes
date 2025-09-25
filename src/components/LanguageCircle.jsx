@@ -1,13 +1,14 @@
+// src/components/LanguageCircle.jsx
 import React, { useState, useEffect } from "react";
-import usaFlag from "../assets/usa-flag.svg"; // FIX path
+import usaFlag from "../assets/usa-flag.svg"; // pastikan path benar
 
 function FlagCircle({ code = "id", size = 28 }) {
-  const style = {
+  const base = {
     width: size,
     height: size,
     borderRadius: "9999px",
     overflow: "hidden",
-    border: "1px solid #000000",
+    border: "1px solid #000",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -16,15 +17,16 @@ function FlagCircle({ code = "id", size = 28 }) {
     return (
       <span
         style={{
-          ...style,
+          ...base,
           backgroundImage:
             "linear-gradient(to bottom, #ef4444 50.1%, #ffffff 50.1%)",
         }}
+        aria-label="Bahasa Indonesia"
       />
     );
   }
   return (
-    <span style={style}>
+    <span style={base} aria-label="English">
       <img
         src={usaFlag}
         alt="US Flag"
@@ -50,16 +52,31 @@ export default function LanguageCircle({ lang = "id", setLang }) {
 
   return (
     <div className="relative z-[60]">
-      <div className="cursor-pointer" onClick={() => setOpen(!open)}>
+      {/* Tombol: tetap posisi seperti kode pertama */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="
+          inline-flex items-center justify-center
+          h-[28px] w-[28px]
+          p-0 bg-transparent border-0
+          align-middle leading-none cursor-pointer
+        "
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
         <FlagCircle code={lang} />
-      </div>
+      </button>
 
+      {/* Dropdown: center di bawah tombol seperti kode kedua */}
       <div
         className={`
-          absolute right-0 mt-3 w-40 rounded-xl border bg-white p-1 shadow-lg
+          absolute left-1/2 -translate-x-1/2 top-full mt-3
+          w-40 rounded-xl border bg-white p-1 shadow-lg
           transition-transform transition-opacity duration-150 ease-out
           ${open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}
         `}
+        role="menu"
       >
         <button
           onClick={() => {
@@ -67,6 +84,7 @@ export default function LanguageCircle({ lang = "id", setLang }) {
             setOpen(false);
           }}
           className="flex items-center gap-2 w-full rounded-lg px-2 py-2 text-left hover:bg-gray-50"
+          role="menuitem"
         >
           <FlagCircle code="id" size={20} />
           <span className="text-sm">Indonesia</span>
@@ -77,6 +95,7 @@ export default function LanguageCircle({ lang = "id", setLang }) {
             setOpen(false);
           }}
           className="flex items-center gap-2 w-full rounded-lg px-2 py-2 text-left hover:bg-gray-50"
+          role="menuitem"
         >
           <FlagCircle code="en" size={20} />
           <span className="text-sm">English</span>
