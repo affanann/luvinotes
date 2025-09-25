@@ -4,8 +4,8 @@ import banner1 from "/src/assets/banner1.webp";
 import banner2 from "/src/assets/banner2.webp";
 import banner3 from "/src/assets/banner3.webp";
 
-const W = 1208; // fixed design width
-const H = 302;  // fixed design height
+const W = 1208;
+const H = 302;
 
 const slides = [
   { id: 1, image: banner1 },
@@ -21,9 +21,11 @@ export default function BannerSlider({ interval = 4000 }) {
   const shellRef = useRef(null);
   const trackRef = useRef(null);
   const timerRef = useRef(null);
-  const idxRef = useRef(idx);
+  const idxRef = useRef(1);
   const isResettingRef = useRef(false);
   const isTransitioningRef = useRef(false);
+  const draggingRef = useRef(false);
+  const autoBlockedRef = useRef(false);
 
   const [scale, setScale] = useState(1);
   useEffect(() => {
@@ -45,26 +47,33 @@ export default function BannerSlider({ interval = 4000 }) {
   );
 
   const stopAuto = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
   }, []);
 
   const startAuto = useCallback(() => {
     stopAuto();
+    if (draggingRef.current || isResettingRef.current || isTransitioningRef.current || autoBlockedRef.current) return;
     timerRef.current = setTimeout(function tick() {
-      if (!isResettingRef.current && !isTransitioningRef.current) setIdx(i => i + 1);
-      else startAuto();
+      if (!draggingRef.current && !isResettingRef.current && !isTransitioningRef.current && !autoBlockedRef.current) {
+        setIdx((i) => i + 1);
+      } else {
+        startAuto();
+      }
     }, interval);
   }, [interval, stopAuto]);
 
   useEffect(() => { startAuto(); return stopAuto; }, [startAuto, stopAuto]);
 
   const handlePrev = useCallback(() => {
-    if (isTransitioningRef.current || isResettingRef.current) return;
-    setIdx(i => i - 1);
+    if (isTransitioningRef.current || isResettingRef.current || draggingRef.current) return;
+    setIdx((i) => i - 1);
   }, []);
   const handleNext = useCallback(() => {
-    if (isTransitioningRef.current || isResettingRef.current) return;
-    setIdx(i => i + 1);
+    if (isTransitioningRef.current || isResettingRef.current || draggingRef.current) return;
+    setIdx((i) => i + 1);
   }, []);
 
   useEffect(() => {
@@ -78,6 +87,7 @@ export default function BannerSlider({ interval = 4000 }) {
     if (!track) return;
 
     const onStart = () => { isTransitioningRef.current = true; };
+
     const onEnd = () => {
       const i = idxRef.current;
       if (i === total + 1 || i === 0) {
@@ -89,10 +99,10 @@ export default function BannerSlider({ interval = 4000 }) {
         track.style.transition = "transform 450ms cubic-bezier(0.22,0.61,0.36,1)";
         setIdx(target);
         isResettingRef.current = false;
-        isTransitioningRef.current = false;
-        startAuto();
-      } else {
-        isTransitioningRef.current = false;
+      }
+      isTransitioningRef.current = false;
+      if (!draggingRef.current) {
+        autoBlockedRef.current = false;
         startAuto();
       }
     };
@@ -105,45 +115,74 @@ export default function BannerSlider({ interval = 4000 }) {
     };
   }, [total, startAuto]);
 
-  // touch swipe
   const startXRef = useRef(0);
-  const dxRef = useRef(0);
-  const draggingRef = useRef(false);
+  const rawDxRef = useRef(0);
+
+  const wrapIndex = (i) => {
+    if (i === 0) return total;
+    if (i === total + 1) return 1;
+    return i;
+  };
 
   const onTouchStart = (e) => {
     if (!trackRef.current) return;
     draggingRef.current = true;
+    autoBlockedRef.current = true;
     stopAuto();
     startXRef.current = e.touches[0].clientX;
-    dxRef.current = 0;
+    rawDxRef.current = 0;
     trackRef.current.style.transition = "none";
   };
+
   const onTouchMove = (e) => {
     if (!draggingRef.current || !trackRef.current) return;
-    const dx = e.touches[0].clientX - startXRef.current;
-    dxRef.current = dx;
-    const dxPct = (dx / (W * scale)) * 100;
+
+    const x = e.touches[0].clientX;
+    let rawDx = x - startXRef.current;
+    const slideW = W * scale;
+
+    while (rawDx > slideW) {
+      const nextIdx = wrapIndex(idxRef.current - 1);
+      idxRef.current = nextIdx;
+      setIdx(nextIdx);
+      startXRef.current += slideW;
+      rawDx -= slideW;
+    }
+    while (rawDx < -slideW) {
+      const nextIdx = wrapIndex(idxRef.current + 1);
+      idxRef.current = nextIdx;
+      setIdx(nextIdx);
+      startXRef.current -= slideW;
+      rawDx += slideW;
+    }
+
+    rawDxRef.current = rawDx;
+    const dxPct = (rawDx / slideW) * 100;
     trackRef.current.style.transform =
       `translate3d(calc(-${idxRef.current * 100}% + ${dxPct}%),0,0)`;
-    if (Math.abs(dx) > 6) e.preventDefault();
+
+    if (Math.abs(rawDx) > 6) e.preventDefault();
   };
+
   const onTouchEnd = () => {
     if (!trackRef.current) return;
-    const threshold = Math.max(40 * scale, W * scale * 0.08);
+    const slideW = W * scale;
+    const rawDx = rawDxRef.current;
+    const threshold = Math.max(40 * scale, slideW * 0.08);
+
     trackRef.current.style.transition = "transform 450ms cubic-bezier(0.22,0.61,0.36,1)";
-    if (dxRef.current > threshold) setIdx(i => i - 1);
-    else if (dxRef.current < -threshold) setIdx(i => i + 1);
+    if (rawDx > threshold) setIdx((i) => wrapIndex(i - 1));
+    else if (rawDx < -threshold) setIdx((i) => wrapIndex(i + 1));
     else trackRef.current.style.transform = `translate3d(-${idxRef.current * 100}%,0,0)`;
+
     draggingRef.current = false;
-    dxRef.current = 0;
-    startAuto();
+    rawDxRef.current = 0;
   };
 
   const scaledH = Math.round(H * scale);
 
   return (
     <div className="mx-2 sm:mx-3 lg:mx-6 my-6 sm:my-8 md:my-12 lg:my-16">
-      {/* shell */}
       <div
         ref={shellRef}
         className="mx-auto w-full max-w-[1208px] relative"
@@ -159,6 +198,7 @@ export default function BannerSlider({ interval = 4000 }) {
             top: 0,
             transform: `translateX(-50%) scale(${scale})`,
             transformOrigin: "top center",
+            touchAction: "pan-y",
           }}
           onMouseEnter={stopAuto}
           onMouseLeave={startAuto}
@@ -166,7 +206,6 @@ export default function BannerSlider({ interval = 4000 }) {
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          {/* track */}
           <div
             ref={trackRef}
             className="flex h-full will-change-transform"
@@ -190,7 +229,6 @@ export default function BannerSlider({ interval = 4000 }) {
             ))}
           </div>
 
-          {/* panah kiri */}
           <button
             onClick={handlePrev}
             aria-label="Sebelumnya"
@@ -203,8 +241,6 @@ export default function BannerSlider({ interval = 4000 }) {
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-
-          {/* panah kanan */}
           <button
             onClick={handleNext}
             aria-label="Berikutnya"
@@ -218,7 +254,6 @@ export default function BannerSlider({ interval = 4000 }) {
             </svg>
           </button>
 
-          {/* dots desktop */}
           <div className="hidden sm:flex absolute bottom-4 left-1/2 -translate-x-1/2 gap-2">
             {slides.map((_, i) => (
               <button

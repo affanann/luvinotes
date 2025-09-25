@@ -126,14 +126,6 @@ export default function RightDrawer({ open, onClose, lang = "id" }) {
             </div>
           </div>
 
-          {/* rekomendasi */}
-          <button
-            className="w-full px-3 py-3 rounded-xl hover:bg-gray-50 text-left font-semibold"
-            onClick={() => goAnchor("recommendations")}
-          >
-            {isID ? "Rekomendasi" : "Recommendations"}
-          </button>
-
           {/* bundle */}
           <button
             className="w-full px-3 py-3 rounded-xl hover:bg-gray-50 text-left font-semibold"
