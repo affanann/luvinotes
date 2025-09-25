@@ -52,30 +52,24 @@ export default function LanguageCircle({ lang = "id", setLang }) {
 
   return (
     <div className="relative z-[60]">
-      {/* Tombol: tetap posisi seperti kode pertama */}
+      {/* tombol */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="
-          inline-flex items-center justify-center
-          h-[28px] w-[28px]
-          p-0 bg-transparent border-0
-          align-middle leading-none cursor-pointer
-        "
+        className="inline-flex items-center justify-center h-[28px] w-[28px] p-0 bg-transparent border-0 align-middle leading-none"
         aria-haspopup="menu"
         aria-expanded={open}
       >
         <FlagCircle code={lang} />
       </button>
 
-      {/* Dropdown: center di bawah tombol seperti kode kedua */}
+      {/* dropdown */}
       <div
-        className={`
-          absolute left-1/2 -translate-x-1/2 top-full mt-3
-          w-40 rounded-xl border bg-white p-1 shadow-lg
-          transition-transform transition-opacity duration-150 ease-out
-          ${open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}
-        `}
+        className={`absolute left-1/2 -translate-x-1/2 top-full mt-3 w-40 rounded-xl border bg-white p-1 shadow-lg transition duration-150 ease-out ${
+          open
+            ? "opacity-100 scale-100"
+            : "opacity-0 scale-95 pointer-events-none"
+        }`}
         role="menu"
       >
         <button

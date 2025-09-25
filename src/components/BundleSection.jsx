@@ -27,7 +27,7 @@ export default function BundleSection({ lang = "id", onAdd }) {
         </h2>
       </div>
 
-      {/* Mobile: 2 kolom kompak. Desktop: tetap 4 kolom. */}
+      {/* Mobile */}
       <div className="mx-auto mt-6 w-full max-w-[1280px] grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {ITEMS.map((p) => {
           const title = p.title?.[lang] ?? p.title?.id ?? "";

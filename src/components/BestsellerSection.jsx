@@ -62,7 +62,7 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
         .snap-always{scroll-snap-stop:always}
       `}</style>
 
-      {/* kotak hitam fixed + clip isi */}
+      {/* kotak hitam */}
       <div className="mx-auto w-full max-w-[1280px] rounded-3xl bg-neutral-900 text-white ring-1 ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.18)] px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-hidden">
         <h2
           className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight uppercase drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]"
@@ -164,7 +164,7 @@ export default function BestsellerSection({ items, onAdd, lang = "id" }) {
           })}
         </div>
 
-        {/* DESKTOP: tetap grid */}
+        {/* DESKTOP */}
         <div className="mt-8 hidden lg:grid grid-cols-5 gap-6">
           {data.map((b) => {
             const titleText = b.title?.[lang] || b.title?.id || "";

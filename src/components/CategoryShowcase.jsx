@@ -35,9 +35,9 @@ export default function CategoryShowcase({ lang = "id", onPick }) {
         </h2>
       </div>
 
-      {/* Grid kategori — sejajar tepi banner */}
+      {/* Grid kategori */}
       <div className="mx-auto w-full max-w-[1280px]">
-        {/* Mobile 5×2, ≥md 10×1 */}
+        {/* Mobile */}
         <div className="grid grid-cols-5 md:grid-cols-10 gap-4 md:gap-5 place-items-center">
           {CATS.map((c) => (
             <button
@@ -65,7 +65,6 @@ export default function CategoryShowcase({ lang = "id", onPick }) {
                 />
               </div>
 
-              {/* Teks ikut animasi */}
               <span
                 className="
                   mt-3 text-sm sm:text-base font-semibold text-gray-900 text-center
