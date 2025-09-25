@@ -1,3 +1,4 @@
+// src/components/SearchExperience.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchBarGlass from "./SearchBarGlass";
@@ -22,7 +23,6 @@ export default function SearchExperience({ lang = "id" }) {
 
   const [value, setValue] = useState(initialQ);
   const [open, setOpen] = useState(false);
-
   const boxRef = useRef(null);
 
   const filtered = useMemo(() => {
@@ -47,10 +47,9 @@ export default function SearchExperience({ lang = "id" }) {
     nav(`/search?q=${encodeURIComponent(query)}`);
   };
 
-  // section
   return (
     <div className="relative">
-      {/* searchbar */}
+      {/* input */}
       <SearchBarGlass
         lang={lang}
         value={value}
@@ -62,10 +61,10 @@ export default function SearchExperience({ lang = "id" }) {
         placeholder={lang === "en" ? "Search books…" : "Cari buku…"}
       />
 
-      {/* backdrop */}
+      {/* backdrop (tidak menutupi navbar) */}
       {open && (
         <div
-          className="fixed inset-0 z-30 bg-black/40"
+          className="fixed left-0 right-0 bottom-0 z-30 bg-black/40 top-16 sm:top-20"
           aria-hidden
           onClick={() => setOpen(false)}
         />
@@ -77,21 +76,18 @@ export default function SearchExperience({ lang = "id" }) {
           ref={boxRef}
           className="absolute left-1/2 -translate-x-1/2 z-40 mt-2 w-[min(92vw,700px)] overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl"
         >
-          {/* header */}
           <div className="px-4 py-3 border-b bg-white/80 backdrop-blur">
             <p className="text-sm font-semibold">
               {lang === "en" ? "Suggestions" : "Rekomendasi"}
             </p>
           </div>
 
-          {/* items */}
           <ul className="max-h-[50vh] overflow-auto py-1">
             {filtered.length === 0 && (
               <li className="px-4 py-3 text-sm text-gray-500">
                 {lang === "en" ? "No suggestions" : "Tidak ada saran"}
               </li>
             )}
-
             {filtered.map((s) => (
               <li key={s}>
                 <button
@@ -107,7 +103,6 @@ export default function SearchExperience({ lang = "id" }) {
             ))}
           </ul>
 
-          {/* footer */}
           <div className="px-4 py-2 border-t text-xs text-gray-500 bg-white/80 backdrop-blur">
             {lang === "en"
               ? "Press Enter to search, or click a suggestion."
