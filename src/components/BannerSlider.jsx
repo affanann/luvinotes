@@ -142,14 +142,13 @@ export default function BannerSlider({ interval = 4000 }) {
   const scaledH = Math.round(H * scale);
 
   return (
-    <div className="mx-2 sm:mx-3 lg:mx-6">
-      {/* shell: lebar responsif, tinggi mengikuti scale */}
+    <div className="mx-2 sm:mx-3 lg:mx-6 my-6 sm:my-8 md:my-12 lg:my-16">
+      {/* shell */}
       <div
         ref={shellRef}
         className="mx-auto w-full max-w-[1208px] relative"
         style={{ height: scaledH }}
       >
-        {/* canvas: tetap 1208x302, di-scale dan DI-TENGAHKAN */}
         <div
           className="relative overflow-hidden rounded-[28px] ring-1 ring-black/5 shadow-sm select-none group"
           style={{
@@ -191,7 +190,7 @@ export default function BannerSlider({ interval = 4000 }) {
             ))}
           </div>
 
-          {/* panah: desktop saja */}
+          {/* panah kiri */}
           <button
             onClick={handlePrev}
             aria-label="Sebelumnya"
@@ -199,11 +198,13 @@ export default function BannerSlider({ interval = 4000 }) {
                        transition-all duration-300 ease-out opacity-0 group-hover:opacity-100 z-10 place-items-center
                        w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5"
           >
-            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none"
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-black" fill="none"
               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
+
+          {/* panah kanan */}
           <button
             onClick={handleNext}
             aria-label="Berikutnya"
@@ -211,13 +212,13 @@ export default function BannerSlider({ interval = 4000 }) {
                        transition-all duration-300 ease-out opacity-0 group-hover:opacity-100 z-10 place-items-center
                        w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/30 backdrop-blur-md border border-white/40 shadow-lg ring-1 ring-black/5"
           >
-            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none"
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-black" fill="none"
               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
 
-          {/* dots: desktop saja */}
+          {/* dots desktop */}
           <div className="hidden sm:flex absolute bottom-4 left-1/2 -translate-x-1/2 gap-2">
             {slides.map((_, i) => (
               <button
