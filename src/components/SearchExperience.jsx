@@ -1,14 +1,13 @@
-// src/components/SearchExperience.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchBarGlass from "./SearchBarGlass";
 
 const BASE_SUGGESTIONS = [
-  "subject:business",
-  "subject:investment",
-  "subject:fiction",
-  "subject:science",
-  "subject:history",
+  "business",
+  "investment",
+  "fiction",
+  "science",
+  "history",
   "self-help",
   "parenting",
   "novel indonesia",
@@ -20,7 +19,6 @@ export default function SearchExperience({ lang = "id" }) {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const initialQ = params.get("q") || "";
-
   const [value, setValue] = useState(initialQ);
   const [open, setOpen] = useState(false);
   const boxRef = useRef(null);
@@ -28,7 +26,10 @@ export default function SearchExperience({ lang = "id" }) {
   const filtered = useMemo(() => {
     const v = value.trim().toLowerCase();
     if (!v) return BASE_SUGGESTIONS.slice(0, 6);
-    return BASE_SUGGESTIONS.filter((s) => s.toLowerCase().includes(v)).slice(0, 8);
+    return BASE_SUGGESTIONS.filter((s) => s.toLowerCase().includes(v)).slice(
+      0,
+      8
+    );
   }, [value]);
 
   useEffect(() => {
@@ -49,7 +50,6 @@ export default function SearchExperience({ lang = "id" }) {
 
   return (
     <div className="relative">
-      {/* input */}
       <SearchBarGlass
         lang={lang}
         value={value}
@@ -61,20 +61,10 @@ export default function SearchExperience({ lang = "id" }) {
         placeholder={lang === "en" ? "Search books…" : "Cari buku…"}
       />
 
-      {/* backdrop (tidak menutupi navbar) */}
-      {open && (
-        <div
-          className="fixed left-0 right-0 bottom-0 z-30 bg-black/40 top-16 sm:top-20"
-          aria-hidden
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      {/* panel */}
       {open && (
         <div
           ref={boxRef}
-          className="absolute left-1/2 -translate-x-1/2 z-40 mt-2 w-[min(92vw,700px)] overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl"
+          className="absolute left-1/2 -translate-x-1/2 z-40 mt-2 w-[min(92vw,700px)] rounded-2xl border border-black/10 bg-white shadow-2xl"
         >
           <div className="px-4 py-3 border-b bg-white/80 backdrop-blur">
             <p className="text-sm font-semibold">
@@ -102,12 +92,6 @@ export default function SearchExperience({ lang = "id" }) {
               </li>
             ))}
           </ul>
-
-          <div className="px-4 py-2 border-t text-xs text-gray-500 bg-white/80 backdrop-blur">
-            {lang === "en"
-              ? "Press Enter to search, or click a suggestion."
-              : "Tekan Enter untuk mencari, atau klik salah satu saran."}
-          </div>
         </div>
       )}
     </div>
